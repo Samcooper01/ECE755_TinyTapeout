@@ -16,12 +16,55 @@ module tt_um_example (
     input  wire       rst_n     // reset_n - low to reset
 );
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+  // Bidirectional pins unused
+  assign uio_out = 8'b0;
+  assign uio_oe  = 8'b0;
+
+  // Input mapping
+  // ui_in[3:0] = activation input (FP4)
+  // ui_in[7:4] = weight input (FP4)
+  wire [3:0] a_in     = ui_in[3:0];  // Activation input (FP4)
+  wire [3:0] w_in     = ui_in[7:4];  // Weight input (FP4)
+  
+  // Control signals (tied for simple operation)
+  wire       h_en_in  = 1'b1;        // Always enabled
+  wire       v_en_in  = 1'b1;        // Always enabled
+  wire       ld_bias  = 1'b0;        // No bias loading (accumulate only)
+  
+  // Internal signals
+  wire [3:0]  a_out;
+  wire [3:0]  w_out;
+  wire        h_en_out;
+  wire        v_en_out;
+  wire [15:0] acc_out;
+  
+  // Fixed bias value for testing (can be modified)
+  wire [15:0] bias = 16'h0000;  // FP16 zero
+  
+  // Instantiate GEMM PE
+  gemm_pe #(
+      .ACT_WIDTH(4),
+      .WGT_WIDTH(4),
+      .ACC_WIDTH(16)
+  ) u_gemm_pe (
+      .clk      (clk),
+      .a_in     (a_in),
+      .h_en_in  (h_en_in),
+      .w_in     (w_in),
+      .v_en_in  (v_en_in),
+      .bias     (bias),
+      .ld_bias  (ld_bias),
+      .a_out    (a_out),
+      .h_en_out (h_en_out),
+      .w_out    (w_out),
+      .v_en_out (v_en_out),
+      .acc_out  (acc_out)
+  );
+  
+  // Output mapping - all 8 bits for accumulator
+  assign uo_out[7:0] = acc_out[7:0]; // Lower 8 bits of accumulator
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
+  wire _unused = &{ena, rst_n, uio_in, acc_out[15:8], w_out, a_out, h_en_out, v_en_out, 1'b0};
 
 endmodule

@@ -1,11 +1,11 @@
 # Tiny Tapeout project information
 project:
-  title:        ""      # Project title
-  author:       ""      # Your name
+  title:        "GEMM Processing Element"      # Project title
+  author:       "Group5"      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  ""      # One line description of what your project does
+  description:  "FP4 multiply-accumulate processing element for GEMM systolic array"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
+  clock_hz:     50000000       # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
   tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
@@ -18,39 +18,44 @@ project:
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
     - "project.v"
+    - "gemm_pe.sv"
+    - "FloatP4x16.v"
+    - "fp16_adder_truncation.sv"
+    - "fp16_adder_helpers.v"
+    - "FixedP2x4_opt.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[0]: "A_IN[0] - Activation input bit 0 (FP4)"
+  ui[1]: "A_IN[1] - Activation input bit 1 (FP4)"
+  ui[2]: "A_IN[2] - Activation input bit 2 (FP4)"
+  ui[3]: "A_IN[3] - Activation input bit 3 (FP4)"
+  ui[4]: "W_IN[0] - Weight input bit 0 (FP4)"
+  ui[5]: "W_IN[1] - Weight input bit 1 (FP4)"
+  ui[6]: "W_IN[2] - Weight input bit 2 (FP4)"
+  ui[7]: "W_IN[3] - Weight input bit 3 (FP4)"
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "ACC_OUT[0] - Accumulator output bit 0"
+  uo[1]: "ACC_OUT[1] - Accumulator output bit 1"
+  uo[2]: "ACC_OUT[2] - Accumulator output bit 2"
+  uo[3]: "ACC_OUT[3] - Accumulator output bit 3"
+  uo[4]: "ACC_OUT[4] - Accumulator output bit 4"
+  uo[5]: "ACC_OUT[5] - Accumulator output bit 5"
+  uo[6]: "ACC_OUT[6] - Accumulator output bit 6"
+  uo[7]: "ACC_OUT[7] - Accumulator output bit 7"
 
   # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
-  uio[3]: ""
-  uio[4]: ""
-  uio[5]: ""
-  uio[6]: ""
-  uio[7]: ""
+  uio[0]: "Unused"
+  uio[1]: "Unused"
+  uio[2]: "Unused"
+  uio[3]: "Unused"
+  uio[4]: "Unused"
+  uio[5]: "Unused"
+  uio[6]: "Unused"
+  uio[7]: "Unused"
 
 # Do not change!
 yaml_version: 6
