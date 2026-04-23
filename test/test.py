@@ -18,42 +18,64 @@ async def test_project(dut):
     dut._log.info("Initialize")
     dut.ena.value = 1
     dut.ui_in.value = 0
-    dut.uio_in.value = 0
+    dut.uio_in.value = 0  # data_valid = 0, reset_acc = 0
     dut.rst_n.value = 1
 
-    # Wait for pipeline to settle (2-stage pipeline)
-    await ClockCycles(dut.clk, 5)
+    # Wait for pipeline to settle
+    await ClockCycles(dut.clk, 3)
 
-    dut._log.info("Test GEMM PE MAC operations")
+    # Reset accumulator to zero
+    dut._log.info("Reset accumulator")
+    dut.uio_in.value = 0x02  # Assert reset_acc (bit 1)
+    await ClockCycles(dut.clk, 1)
+    dut.uio_in.value = 0x00  # Deassert reset_acc
+    await ClockCycles(dut.clk, 1)
+
+    dut._log.info("Test GEMM PE MAC operations with data_valid control")
 
     # Test 1: Simple inputs (a=0x1, w=0x1)
     dut._log.info("Test 1: a=0x1, w=0x1")
     dut.ui_in.value = 0x11  # a_in[3:0]=0x1, w_in[7:4]=0x1
-    await ClockCycles(dut.clk, 3)  # Wait for pipeline
+    dut.uio_in.value = 0x01  # Assert data_valid
+    await ClockCycles(dut.clk, 1)
+    dut.uio_in.value = 0x00  # Deassert data_valid
+    await ClockCycles(dut.clk, 2)  # Wait for pipeline
     dut._log.info(f"  Output: {dut.uo_out.value}")
 
     # Test 2: Different values (a=0x3, w=0x2)
     dut._log.info("Test 2: a=0x3, w=0x2")
     dut.ui_in.value = 0x23
-    await ClockCycles(dut.clk, 3)
+    dut.uio_in.value = 0x01  # Assert data_valid
+    await ClockCycles(dut.clk, 1)
+    dut.uio_in.value = 0x00  # Deassert data_valid
+    await ClockCycles(dut.clk, 2)
     dut._log.info(f"  Output: {dut.uo_out.value}")
 
     # Test 3: More accumulation (a=0x5, w=0x4)
     dut._log.info("Test 3: a=0x5, w=0x4")
     dut.ui_in.value = 0x45
-    await ClockCycles(dut.clk, 3)
+    dut.uio_in.value = 0x01  # Assert data_valid
+    await ClockCycles(dut.clk, 1)
+    dut.uio_in.value = 0x00  # Deassert data_valid
+    await ClockCycles(dut.clk, 2)
     dut._log.info(f"  Output: {dut.uo_out.value}")
 
     # Test 4: Zero inputs
     dut._log.info("Test 4: a=0x0, w=0x0")
     dut.ui_in.value = 0x00
-    await ClockCycles(dut.clk, 3)
+    dut.uio_in.value = 0x01  # Assert data_valid
+    await ClockCycles(dut.clk, 1)
+    dut.uio_in.value = 0x00  # Deassert data_valid
+    await ClockCycles(dut.clk, 2)
     dut._log.info(f"  Output: {dut.uo_out.value}")
 
     # Test 5: Max values (a=0xF, w=0xF)
     dut._log.info("Test 5: a=0xF, w=0xF")
     dut.ui_in.value = 0xFF
-    await ClockCycles(dut.clk, 3)
+    dut.uio_in.value = 0x01  # Assert data_valid
+    await ClockCycles(dut.clk, 1)
+    dut.uio_in.value = 0x00  # Deassert data_valid
+    await ClockCycles(dut.clk, 2)
     dut._log.info(f"  Output: {dut.uo_out.value}")
 
     dut._log.info("GEMM PE test completed successfully!")

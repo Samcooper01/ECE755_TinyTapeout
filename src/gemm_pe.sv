@@ -53,14 +53,6 @@ module gemm_pe #(
     input  logic [ACC_WIDTH-1:0]    bias,       // FP16 bias value
     input  logic                    ld_bias,    // load bias into accumulator
 
-    // ── Horizontal outputs (to east) ──────────────────────────────────────
-    output logic [ACT_WIDTH-1:0]    a_out,      // activation data to east
-    output logic                    h_en_out,   // horizontal enable to east
-
-    // ── Vertical outputs (to south) ───────────────────────────────────────
-    output logic [WGT_WIDTH-1:0]    w_out,      // weight data to south
-    output logic                    v_en_out,   // vertical enable to south
-
     // ── Accumulator output ────────────────────────────────────────────────
     output logic [ACC_WIDTH-1:0]    acc_out
 );
@@ -75,25 +67,14 @@ module gemm_pe #(
     assign pe_en = h_en_in & v_en_in;
 
     ///////////////////////////////////////////////////////////////////////////
-    // Gated multiplier inputs
-    // Zero when PE inactive — suppresses switching in FP4 multiplier
-    ///////////////////////////////////////////////////////////////////////////
-    logic [ACT_WIDTH-1:0] a_gated;
-    logic [WGT_WIDTH-1:0] w_gated;
-
-    assign a_gated = {ACT_WIDTH{pe_en}} & a_in;
-    assign w_gated = {WGT_WIDTH{pe_en}} & w_in;
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Stage 1: FP4 Multiplier (behavioral placeholder)
-    // TODO: replace with instantiated FP4 multiplier
-    //   mul_comb = fp4_mul(a_gated, w_gated)
+    // Stage 1: FP4 Multiplier
+    // Inputs connected directly - pe_en_q gates accumulator update
     ///////////////////////////////////////////////////////////////////////////
     logic [15:0] mult_out;
 
     FloatP4x16 u_fp4_mul (
-        .A   (a_gated),
-        .B   (w_gated),
+        .A   (a_in),
+        .B   (w_in),
         .Out (mult_out)
     );
 
@@ -143,25 +124,5 @@ module gemm_pe #(
     end
 
     assign acc_out = acc_q;
-
-    ///////////////////////////////////////////////////////////////////////////
-    // EAST pipeline register — single stage
-    // h_en_out : unconditional — enable always propagates east
-    // a_out    : gated by H_EN_IN — no forwarding if row inactive
-    ///////////////////////////////////////////////////////////////////////////
-    always_ff @(posedge clk) begin
-        h_en_out <= h_en_in;
-        a_out    <= h_en_in ? a_in : '0;
-    end
-
-    ///////////////////////////////////////////////////////////////////////////
-    // SOUTH pipeline register — single stage
-    // v_en_out : unconditional — enable always propagates south
-    // w_out    : gated by V_EN_IN — no forwarding if col inactive
-    ///////////////////////////////////////////////////////////////////////////
-    always_ff @(posedge clk) begin
-        v_en_out <= v_en_in;
-        w_out    <= v_en_in ? w_in : '0;
-    end
 
 endmodule

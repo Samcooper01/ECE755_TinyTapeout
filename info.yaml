@@ -20,9 +20,14 @@ project:
     - "project.v"
     - "gemm_pe.sv"
     - "FloatP4x16.v"
+    - "FloatP16x4.v"
     - "fp16_adder_truncation.sv"
     - "fp16_adder_helpers.v"
     - "FixedP2x4_opt.v"
+    - "dadda_mul_trunc.sv"
+    - "dadda_reduced.sv"
+    - "fa.sv"
+    - "ha.sv"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
@@ -37,22 +42,22 @@ pinout:
   ui[6]: "W_IN[2] - Weight input bit 2 (FP4)"
   ui[7]: "W_IN[3] - Weight input bit 3 (FP4)"
 
-  # Outputs
-  uo[0]: "ACC_OUT[0] - Accumulator output bit 0"
-  uo[1]: "ACC_OUT[1] - Accumulator output bit 1"
-  uo[2]: "ACC_OUT[2] - Accumulator output bit 2"
-  uo[3]: "ACC_OUT[3] - Accumulator output bit 3"
-  uo[4]: "ACC_OUT[4] - Accumulator output bit 4"
-  uo[5]: "ACC_OUT[5] - Accumulator output bit 5"
-  uo[6]: "ACC_OUT[6] - Accumulator output bit 6"
-  uo[7]: "ACC_OUT[7] - Accumulator output bit 7"
+  # Dedicated outputs
+  uo[0]: "OUT[0] - Vector FP4 output bit 0 (or ACC[0] debug)"
+  uo[1]: "OUT[1] - Vector FP4 output bit 1 (or ACC[1] debug)"
+  uo[2]: "OUT[2] - Vector FP4 output bit 2 (or ACC[2] debug)"
+  uo[3]: "OUT[3] - Vector FP4 output bit 3 (or ACC[3] debug)"
+  uo[4]: "OUT[4] - Unused (0) in vector mode, ACC[4] in debug"
+  uo[5]: "OUT[5] - Unused (0) in vector mode, ACC[5] in debug"
+  uo[6]: "OUT[6] - Unused (0) in vector mode, ACC[6] in debug"
+  uo[7]: "OUT[7] - Unused (0) in vector mode, ACC[7] in debug"
 
   # Bidirectional pins
-  uio[0]: "Unused"
-  uio[1]: "Unused"
-  uio[2]: "Unused"
-  uio[3]: "Unused"
-  uio[4]: "Unused"
+  uio[0]: "DATA_VALID - Input: enable MAC operation"
+  uio[1]: "RESET_ACC - Input: reset accumulator to zero"
+  uio[2]: "LOAD_SCALE_LOW - Input: load scale[7:0] from ui_in"
+  uio[3]: "LOAD_SCALE_HIGH - Input: load scale[15:8] from ui_in"
+  uio[4]: "VECTOR_MODE - Input: enable vector output (FP4)"
   uio[5]: "Unused"
   uio[6]: "Unused"
   uio[7]: "Unused"
