@@ -1,0 +1,135 @@
+# Makefile for TinyTapeout GEMM PE Verification
+# Uses Icarus Verilog (iverilog) for simulation
+
+# Simulator
+IVERILOG = iverilog
+VVP = vvp
+GTKWAVE = gtkwave
+
+# Directories
+SRC_DIR = ../src
+TB_DIR = .
+WAVE_DIR = waves
+
+# Source files
+RTL_SOURCES = \
+	$(SRC_DIR)/project.v \
+	$(SRC_DIR)/gemm_pe.sv \
+	$(SRC_DIR)/FloatP4x16.v \
+	$(SRC_DIR)/FloatP16x4.v \
+	$(SRC_DIR)/fp16_adder_truncation.sv \
+	$(SRC_DIR)/fp16_adder_helpers.v \
+	$(SRC_DIR)/dadda_mul_trunc.sv \
+	$(SRC_DIR)/dadda_reduced.sv \
+	$(SRC_DIR)/FixedP2x4_opt.v \
+	$(SRC_DIR)/fa.sv \
+	$(SRC_DIR)/ha.sv
+
+# Testbench
+TB_TOP = tb_tt_um_example
+TB_SOURCE = $(TB_DIR)/$(TB_TOP).sv
+
+# Output files
+SIM_OUT = $(TB_TOP).vvp
+WAVE_OUT = $(WAVE_DIR)/$(TB_TOP).vcd
+
+# Compilation flags
+IVERILOG_FLAGS = -g2012 -Wall -Winfloop -Wno-timescale
+VVP_FLAGS = 
+
+# Default target
+.PHONY: all
+all: compile
+
+# Compile testbench and RTL
+.PHONY: compile
+compile: $(SIM_OUT)
+
+$(SIM_OUT): $(TB_SOURCE) $(RTL_SOURCES)
+	@echo "Compiling testbench and RTL..."
+	$(IVERILOG) $(IVERILOG_FLAGS) -o $(SIM_OUT) $(TB_SOURCE) $(RTL_SOURCES)
+	@echo "Compilation successful!"
+
+# Run simulation
+.PHONY: sim
+sim: $(SIM_OUT)
+	@echo "Running simulation..."
+	@mkdir -p $(WAVE_DIR)
+	$(VVP) $(VVP_FLAGS) $(SIM_OUT) $(PLUSARGS)
+	@echo "Simulation complete!"
+
+# Run specific test
+.PHONY: sim-tc1 sim-tc2 sim-tc3 sim-tc4 sim-tc5 sim-tc6 sim-tc7 sim-tc8 sim-tc9
+sim-tc1: PLUSARGS=+test=tc1
+sim-tc1: sim
+
+sim-tc2: PLUSARGS=+test=tc2
+sim-tc2: sim
+
+sim-tc3: PLUSARGS=+test=tc3
+sim-tc3: sim
+
+sim-tc4: PLUSARGS=+test=tc4
+sim-tc4: sim
+
+sim-tc5: PLUSARGS=+test=tc5
+sim-tc5: sim
+
+sim-tc6: PLUSARGS=+test=tc6
+sim-tc6: sim
+
+sim-tc7: PLUSARGS=+test=tc7
+sim-tc7: sim
+
+sim-tc8: PLUSARGS=+test=tc8
+sim-tc8: sim
+
+sim-tc9: PLUSARGS=+test=tc9
+sim-tc9: sim
+
+# View waveforms
+.PHONY: wave
+wave: $(WAVE_OUT)
+	$(GTKWAVE) $(WAVE_OUT) &
+
+# Run all tests
+.PHONY: test
+test: compile sim
+
+# Clean generated files
+.PHONY: clean
+clean:
+	@echo "Cleaning generated files..."
+	rm -f $(SIM_OUT)
+	rm -f $(WAVE_DIR)/*.vcd
+	rm -f *.log
+	@echo "Clean complete!"
+
+# Help
+.PHONY: help
+help:
+	@echo "TinyTapeout GEMM PE Verification Makefile"
+	@echo ""
+	@echo "Targets:"
+	@echo "  all       - Compile testbench (default)"
+	@echo "  compile   - Compile testbench and RTL"
+	@echo "  sim       - Run all tests"
+	@echo "  test      - Compile and run all tests"
+	@echo "  sim-tc1   - Run TC1: Basic MAC Operation"
+	@echo "  sim-tc2   - Run TC2: Multiple MAC with Accumulation"
+	@echo "  sim-tc3   - Run TC3: Scale Factor Loading"
+	@echo "  sim-tc4   - Run TC4: Vector Mode Output"
+	@echo "  sim-tc5   - Run TC5: Accumulator Reset"
+	@echo "  sim-tc6   - Run TC6: Corner Cases"
+	@echo "  sim-tc7   - Run TC7: Control Signal Synchronization"
+	@echo "  sim-tc8   - Run TC8: Pipeline Behavior"
+	@echo "  sim-tc9   - Run TC9: Full System Integration"
+	@echo "  wave      - Open waveform viewer (GTKWave)"
+	@echo "  clean     - Remove generated files"
+	@echo "  help      - Show this help message"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make test       # Compile and run all tests"
+	@echo "  make sim-tc1    # Run only TC1"
+	@echo "  make wave       # View waveforms"
+	@echo "  make clean      # Clean up"
