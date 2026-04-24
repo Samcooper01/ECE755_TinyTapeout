@@ -99,11 +99,11 @@ module tt_um_example (
   
   // Output mapping
   // When vector_mode=1: output FP4 scaled result
-  // When vector_mode=0: output raw FP16 accumulator (upper 8 mantissa bits for debug)
-  assign uo_out[3:0] = vector_mode ? vector_out : acc_out[3:0];
-  assign uo_out[7:4] = vector_mode ? 4'b0 : acc_out[7:4];
+  // When vector_mode=0: output raw FP16 accumulator (upper 8 bits: sign + exponent + upper mantissa)
+  assign uo_out[3:0] = vector_mode ? vector_out : acc_out[11:8];
+  assign uo_out[7:4] = vector_mode ? 4'b0 : acc_out[15:12];
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, uio_in[7:5], acc_out[15:8], 1'b0};
+  wire _unused = &{ena, uio_in[7:5], acc_out[7:0], 1'b0};
 
 endmodule
