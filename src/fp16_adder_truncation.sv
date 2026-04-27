@@ -199,4 +199,6 @@ module fp16_adder_truncation (
                | ({16{is_underflow}}               & 16'h0000)
                | ({16{is_normal}}                  & {s_lg, post_exp[4:0], post_mant});
     end
+
+    wire _unused_ok = &{near_shifted[2:0], far_norm_sum[2:0], trunc_sig[9:0]};
 endmodule

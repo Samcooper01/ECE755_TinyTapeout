@@ -42,6 +42,8 @@ module ks_sub14 (
     assign diff[0]    = p0[0] ^ 1'b1;
     assign diff[13:1] = p0[13:1] ^ carry[12:0];
 
+    wire _unused_ok = carry[13];
+
 endmodule
 
 (* keep *)
@@ -91,6 +93,8 @@ module ks_addsub15 (
 
     assign result[0]    = p0[0] ^ cin;
     assign result[14:1] = p0[14:1] ^ carry[13:0];
+
+    wire _unused_ok = carry[14];
 
 endmodule
 

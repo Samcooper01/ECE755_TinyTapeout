@@ -36,5 +36,6 @@ module dadda_mul_trunc
     end
   endgenerate
   // carry[8] is the overflow from bit 21 – discarded (truncation accepted)
+  wire _unused_ok = &{z0[13:0], z1[13:0], carry[8]};
 
 endmodule

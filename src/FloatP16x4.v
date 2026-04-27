@@ -16,16 +16,10 @@ localparam FP16_EXPONENT_MSB = INPUT_WIDTH-INPUT_SIGN_BITS-1;
 localparam FP16_EXPONENT_LSB = INPUT_WIDTH-INPUT_SIGN_BITS-INPUT_EXPONENT_BITS;
 localparam FP16_MANTISSA_MSB = INPUT_WIDTH-INPUT_SIGN_BITS-INPUT_EXPONENT_BITS-1;
 localparam FP16_MANTISSA_LSB = 0;
-localparam FP16_EFFECTIVE_MANTISSA_MSB = (INPUT_MANTISSA_BITS+1)*2-1; // 21 for 11x11 result
-
 localparam FP16_BIAS = 5'b01111;
 
 //FP4 E2M1 Constants
-localparam FP4_EXPONENT_BITS = 2;
-localparam FP4_MANTISSA_BITS = 1;
 localparam FP4_BIAS = 1;
-// Exponent offset: FP4_stored_exp = FP16_stored_exp - (FP16_BIAS - FP4_BIAS) = FP16_stored_exp - 14
-localparam FP4_EXP_OFFSET = FP16_BIAS - FP4_BIAS; // 14
 
 wire is_norm_a, is_norm_b;
 wire is_zero;
